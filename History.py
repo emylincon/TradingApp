@@ -4,6 +4,9 @@ import pandas as pd
 import yfinance as yf
 import matplotlib.pyplot as plt
 import pandas_datareader as web
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+import numpy as np
 
 
 class TradeHistory:
@@ -49,8 +52,56 @@ class TradeHistory:
         return data.max().to_dict('records')
 
 
-# EURUSD=X
-da = TradeHistory('EUR/USD')
-da.moving_avg()
-print(da.real_time_obj().read())
-print(da.real_time_dict())
+class Predict:
+    def __init__(self, name):
+        self.name = name
+        self.model = None
+        self.stock = TradeHistory(name=self.name)
+        self.increment = 3
+
+    def get_data(self):
+        return self.stock.get_data(length='4hr', increment='1m')
+
+    def get_price_trend(self):
+        df = self.get_data()
+        df['Price_trend'] = np.where(df['Close'].shift(-1) > df['Close'], 1, -1)
+        df['Price_trend'] = np.where(df['Close'].shift(-1) == df['Close'], 0, df['Price_trend'])
+        return df.iloc[:, df.shape[1] - 1].values
+
+    def data_prep(self):
+        # split data into feature and target
+        price_trend = self.get_price_trend()
+        x_train = []
+        y_train = []
+        for i in range(self.increment, len(price_trend)):
+            x_train.append(price_trend[i - self.increment:i])
+            y_train.append(price_trend[i])
+
+        # Split the data again but this time into 80% training and 20% testing data sets
+        return train_test_split(x_train, y_train, test_size=0.2)
+
+    def get_model(self):
+        X_train, X_test, Y_train, Y_test = self.data_prep()
+        # Create and train the model (DecisionTreeClassifier)
+        self.model = DecisionTreeClassifier().fit(X_train, Y_train)
+
+        # Show how well the model did on the test data set
+        print("Prediction Score ->", self.model.score(X_test, Y_test))
+
+    def predict_next(self):
+        keys = {1: 'up', -1: 'down', 0: 'stable'}
+        data = self.get_price_trend()
+        if not self.model:
+            self.get_model()
+        result = self.model.predict([data[-self.increment:]])
+        return keys[result[0]]
+
+
+
+        # EURUSD=X
+# da = TradeHistory('EUR/USD')
+# da.moving_avg()
+# print(da.real_time_obj().read())
+# print(da.real_time_dict())
+
+print(Predict('EUR/USD').predict_next())
