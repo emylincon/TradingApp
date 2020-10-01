@@ -2,11 +2,13 @@ import requests
 import json
 import pandas as pd
 import yfinance as yf
+from drawnow import *
 import matplotlib.pyplot as plt
 import pandas_datareader as web
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 import numpy as np
+import time
 
 
 class TradeHistory:
@@ -52,7 +54,12 @@ class TradeHistory:
         return data.max().to_dict('records')
 
 
-class Predict:
+class PredictFlow:
+    """:key
+    Predicts the direction of flow of the stock
+    it predicts if the stock would go up or down
+    returns down, up or stable as results
+    """
     def __init__(self, name):
         self.name = name
         self.model = None
@@ -97,11 +104,133 @@ class Predict:
         return keys[result[0]]
 
 
+class TradingSignal:
+    """
+    # Money flow index helps to determine when to buy or sell stock
+    # money flow index over 80 is considered over bought which is an indication to sell
+    # and a money flow index below 20 is considered over sold which is an indication to buy
+    # money flow index of 90 and 10 are used as thresholds
+    # this program determines when to buy or sell
+    """
+    def __init__(self, name):
+        self.name = name
+        self.stock = TradeHistory(name=self.name)
+        self.period = 60
+        self.data = self.get_data()
+        self.high = 85
+        self.low = 25
+
+    def get_data(self, length='4hr'):
+        return self.stock.get_data(length=length, increment='1m')
+
+    def money_flow(self):
+        self.data = self.get_data()
+        return (self.data['Close'] + self.data['High'] + self.data['Low']) / 3
+
+    def money_flow_index(self):
+        money_flow = self.money_flow()
+
+        positive_flow = []
+        negative_flow = []
+
+        # Loop through the typical price
+        for i in range(1, len(money_flow)):
+            if money_flow[i] > money_flow[i - 1]:
+                positive_flow.append(money_flow[i - 1])
+                negative_flow.append(0)
+            elif money_flow[i] < money_flow[i - 1]:
+                negative_flow.append(money_flow[i - 1])
+                positive_flow.append(0)
+            else:
+                positive_flow.append(0)
+                negative_flow.append(0)
+
+        # Get all of the positive and negative money flows within the time period
+        positive_mf = []
+        negative_mf = []
+
+        for i in range(self.period - 1, len(positive_flow)):
+            positive_mf.append(sum(positive_flow[i + 1 - self.period: i + 1]))
+
+        for i in range(self.period - 1, len(negative_flow)):
+            negative_mf.append(sum(negative_flow[i + 1 - self.period: i + 1]))
+
+        # Calculate the money flow index
+        mfi = 100 * (np.array(positive_mf) / (np.array(positive_mf) + np.array(negative_mf)))
+
+        new_df = self.data[self.period:]
+        new_df['MFI'] = mfi
+        return new_df
+
+    def get_signal(self):
+        buy_signal = []
+        sell_signal = []
+        data = self.money_flow_index()
+        for i in range(len(data['MFI'])):
+
+            if data['MFI'][i] > self.high:
+                buy_signal.append(0)
+                sell_signal.append(data['Close'][i])
+
+            elif data['MFI'][i] < self.low:
+                buy_signal.append(data['Close'][i])
+                sell_signal.append(0)
+            else:
+                sell_signal.append(0)
+                buy_signal.append(0)
+        return buy_signal, sell_signal, data
+
+    def determine_signal(self):
+        buy, sell, my_data = self.get_signal()
+        result = {'buy': buy[-1], 'sell': sell[-1]}
+        if buy[-1] != np.nan:
+            print('type ->', type(buy[-1]), buy[-1])
+            return 'buy', result
+        elif sell[-1] != np.nan:
+            return 'sell', result
+        else:
+            return 'wait', result
+
+    def plot(self):
+        plt.figure(figsize=(12.2, 4.5))
+        buy, sell, new_df = self.get_signal()
+        print(len(buy), len(sell), len(new_df))
+        new_df.index = pd.to_datetime(new_df.index.astype(str).str.slice(0, 19), format='%Y-%m-%d %H:%M:%S')
+
+        my_df = pd.DataFrame({'date': new_df.index, 'buy': buy, 'sell': sell})
+
+        my_df.set_index('date')
+        my_buy = my_df.loc[my_df.buy != 0, :]
+        my_sell = my_df.loc[my_df.sell != 0, :]
+        print(my_buy)
+        print(my_sell)
+
+        plt.plot(new_df['Close'], label='Close Price', alpha=0.5)
+
+        plt.scatter(my_buy.index, my_buy.buy, color='green', label='Buy Signal', marker='^', alpha=1)
+        plt.scatter(my_sell.index, my_sell.buy, color='red', label='Sell Signal', marker='v', alpha=1)
+        #plt.scatter(new_df.index, sell, color='red', label='Sell Signal', marker='v', alpha=1)
+        plt.title(f'{self.name} Close Price')
+        plt.xlabel('Date')
+        plt.ylabel('Close Price')
+        plt.legend()
+        # plt.show()
 
         # EURUSD=X
+t_name = 'EUR/USD'
 # da = TradeHistory('EUR/USD')
+# df = da.get_data(length='4hr', increment='1m')
+# df.to_csv('test.csv')
 # da.moving_avg()
 # print(da.real_time_obj().read())
 # print(da.real_time_dict())
 
-print(Predict('EUR/USD').predict_next())
+#print(PredictFlow('EUR/USD').predict_next())
+
+ts = TradingSignal(t_name)
+print(ts.determine_signal())
+#
+while True:
+    drawnow(ts.plot)
+    time.sleep(2)
+# ts.plot()
