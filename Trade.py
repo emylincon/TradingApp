@@ -13,6 +13,7 @@ class Trade:
         self.stock = TradeHistory(name=self.name)
         self.data = None
         self.classifier = None
+        self.table = Table()
         self.keep_columns = ['Close', 'MACD', 'signal_Line', 'RSI', 'SMA', 'EMA']
         self.accuracy = {'train': 0, 'test': 0}
 
@@ -63,8 +64,11 @@ class Trade:
         return data
 
     def data_preparation(self):
-        # Add the indicators to the data set
+        # fetch data
         self.set_data()
+        # add table data
+        self.table.add_row(datetime=self.data.index[-1], close=self.data.Close.values[-1])
+        # Add the indicators to the data set
         self.MACD(self.data)
         self.RSI(self.data)
         self.data['SMA'] = self.SMA(self.data)
@@ -111,7 +115,9 @@ class Trade:
     def predict(self):
         self.get_model()
         last = self.data[self.keep_columns].values[-1]
-        return self.classifier.predict([last])[0]
+        prediction = self.classifier.predict([last])[0]
+        self.table.set_close_prediction(close=last[0], prediction=prediction)
+        return prediction
 
 
 class Table:
@@ -123,12 +129,18 @@ class Table:
 
     def set_close_prediction(self, close, prediction):
         self.last_close = close
-        self.last_prediction = prediction
+        self.last_prediction = round(prediction)
+
+    @staticmethod
+    def date_format(datetime):
+        return datetime.strftime('%d-%m-%Y  %H:%M:%S')
 
     def add_row(self, datetime, close):
         if self.last_close:
             actual = 1 if close > self.last_close else 0
-            self.predictions.append({'Datetime': datetime, 'Actual': actual, 'Prediction': self.last_prediction})
+            self.predictions = self.predictions.append(
+                {'Datetime': self.date_format(datetime), 'Actual': actual, 'Predicted': self.last_prediction},
+                ignore_index=True)
             self.right += 1 if actual == self.last_prediction else self.right
 
     def score(self):
