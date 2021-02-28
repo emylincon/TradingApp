@@ -1,15 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src='https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js'></script>
-    <title>Trade</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
+    <div id="diff-table" class="border">
+         <h2>Update Table &nbsp;<span id="tik">EUR/USD</span></h2>
+            <div class="timer">
+                59s
+            </div>
+            <br>
+            <div class="mytable">
+                <table class='query'>
+                <tr>
+                      <th>DateTime</th>
+                      <th>Actual</th>
+                      <th>Predicted</th>
+                </tr>
 
-    <canvas id="myChart" width="400" height="400"></canvas>
+                <tr>
+                    <td >12 Jan 2021 19:00</td>
+                    <td >Up</td>
+                    <td >Down</td>
+                </tr>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+                <tr>
+                    <td >12 Jan 2021 19:01</td>
+                    <td >Up</td>
+                    <td >Up</td>
+                </tr>
+
+                <tr>
+                    <td >12 Jan 2021 19:02</td>
+                    <td >Down</td>
+                    <td >Down</td>
+                </tr>
+              </table>
+            </div>
+
+    </div>
+    <div class="charts">
+        <div class="item border">
+            <div id="close" class="chart"></div>
+        </div>
+        <div class="item border">
+            <div id="EMA" class="chart" ></div>
+        </div>
+        <div class="item border">
+            <div id="SMA" class="chart"></div>
+        </div>
+        <div class="item border">
+            <canvas id="Pie" height="120"></canvas>
+        </div>
+
+    </div>
+
+
+
+
+{% endblock content %}
