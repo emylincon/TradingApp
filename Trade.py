@@ -5,6 +5,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import classification_report
 from History import TradeHistory
 import time
+import traceback, sys
+from threading import Thread
 
 
 class Trade:
@@ -125,6 +127,7 @@ class Table:
         self.last_close = None
         self.last_prediction = None
         self.right = 0
+        self.max_length = 100
         self.predictions = pd.DataFrame(None, columns=['Datetime', 'Actual', 'Predicted'])
 
     def set_close_prediction(self, close, prediction):
@@ -137,21 +140,68 @@ class Table:
 
     def add_row(self, datetime, close):
         if self.last_close:
-            actual = 1 if close > self.last_close else 0
-            self.predictions = self.predictions.append(
-                {'Datetime': self.date_format(datetime), 'Actual': actual, 'Predicted': self.last_prediction},
-                ignore_index=True)
-            self.right += 1 if actual == self.last_prediction else self.right
+            if len(self.predictions) == 0:
+                self.__append(close, datetime)
+
+            elif self.predictions.Datetime.values[-1] != self.date_format(datetime):
+                self.__append(close, datetime)
+
+    def __append(self, close, datetime):
+        actual = 1 if close > self.last_close else 0
+        self.predictions = self.predictions.append(
+            {'Datetime': self.date_format(datetime), 'Actual': actual, 'Predicted': self.last_prediction},
+            ignore_index=True)
+        self.right += 1 if actual == self.last_prediction else self.right
+        self.cap_length()
+
+    def cap_length(self):
+        if len(self.predictions) > self.max_length:
+            self.predictions = self.predictions.drop(self.predictions.index[0])
 
     def score(self):
-        round((self.right/len(self.predictions))*100, 2)
+        if len(self.predictions) > 0:
+            return round((self.right/len(self.predictions))*100, 2)
+        else:
+            return 0
 
 
-t_name = 'EUR/USD'
-my_trade = Trade(name=t_name)
-print(my_trade.predict())
+# t_name = 'EUR/USD'
+# my_trade = Trade(name=t_name)
+# print(my_trade.predict())
 
 
+class Manager:
+    def __init__(self, name):
+        self.name = name
+        self.trade = Trade(name=name)
+        self.run()
+
+    def run(self):
+        t1 = Thread(target=self.start)
+        t1.start()
+
+    def get_display_data(self, length=15):
+        display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None}
+        data = self.trade.data
+        display['close'] = list(data.Close.values)[-length:]
+        display['SMA'] = list(data.SMA.values)[-length:]
+        display['EMA'] = list(data.EMA.values)[-length:]
+        display['date'] = [str(i) for i in data.index[-length:]]
+        display['table'] = self.trade.table.predictions.sort_index(ascending=False).to_dict('list')
+        score = self.trade.table.score()
+        display['accuracy'] = [score, 100-score]
+
+        return display
+
+    def start(self):
+        while True:
+            try:
+                self.trade.predict()
+            except:
+                traceback.print_exc()
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                print(f'Error: {exc_value}')
+            time.sleep(60)
 
 
 
