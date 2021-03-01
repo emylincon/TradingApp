@@ -1,16 +1,6 @@
-mycharts = [
-    document.getElementById('Chart1').getContext('2d'),
-    document.getElementById('Chart2').getContext('2d'),
-    document.getElementById('Chart3').getContext('2d'),
-    document.getElementById('Chart4').getContext('2d'),
-];
 
-chartobjs = [];
-
-for (let i=0;i<4;i++) {
-    if(i === 3){
-        chartobjs.push(
-            new Chart(mycharts[i], {
+let pie = document.getElementById('Pie').getContext('2d');
+let pieChart = new Chart(pie, {
             type: 'doughnut',
             data: {
             datasets: [{
@@ -44,55 +34,61 @@ for (let i=0;i<4;i++) {
                     fontColor: 'black'
                 },
             }
-        })
-        )
-    }
-    else{
-        chartobjs.push(
-            new Chart(mycharts[i], {
-            type: 'line',
-            data: {
-                labels: [0,1,2,3,4,5],
-                datasets: [{
-                    label: '# of Votes',
-                    fill: false,
-                    data: [12, 19, 3, 5, 2, 3],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        type: 'logarithmic',
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
+        });
+
+
+let colors = ['225,104,104', '0,128,0', '142, 124, 195']
+let names = ['close', 'SMA', 'EMA'];
+
+let chartInfo = {};
+for (let i = 0; i < 3; i++) {
+    chartInfo[names[i]] = {
+        'data': [{
+                  x: ["2021-02-26 21:59:00+00:00", "2021-02-26 22:00:00+00:00", "2021-02-26 22:01:00+00:00", "2021-02-26 22:02:00+00:00"],
+                  y: [16, 5, 11, 9],
+                  type: 'scatter',
+                    line: {shape: 'spline',
+                        dash: 'dashdot',
+                        color: 'rgba('+colors[i]+',1)',
+                        width: 2
+                    },
+                    marker: {
+                    color: 'rgba('+colors[i]+',0.7)',
+                    size: 8
+                  },
+                }],
+        'layout': {
+                  title:`${names[i]} ${document.querySelector('#tik').innerHTML}`,
+                  xaxis: {
+                    title: 'DateTime',
+                  },
+                  yaxis: {
+                    // title: 'Close'
+                  },
+                    plot_bgcolor:"rgba(233, 231, 231, 0.3)",
+                    paper_bgcolor:"rgb(233, 231, 231)"
                 }
-            }
-        })
-    )
-
     }
-
 }
 
-const chartDict = {'close': chartobjs[0], 'SMA': chartobjs[1], 'EMA':chartobjs[2], 'accuracy': chartobjs[3]}
+for (let i = 0; i < 3; i++) {
+    Plotly.newPlot(names[i], chartInfo[names[i]]['data'], chartInfo[names[i]]['layout']);
+}
+const no = 59;
 let count = 59;
 const countDiv = document.querySelector(".timer");
 function timeCount(){
     if(count === 0){
-        count = 60;
+        count = no+1;
     }
     count -= 1;
     countDiv.innerHTML = `${count}s`;
 }
 // display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None}
 function updateChart(chart, labels, data){
-    chartDict[chart].data.labels = labels;
-    chartDict[chart].data.datasets[0].data = data;
+    chartInfo[chart].data[0].x = labels;
+    chartInfo[chart].data[0].y = data;
+
 }
 
 async function updateDisplay(){
@@ -100,14 +96,14 @@ async function updateDisplay(){
     const response = await fetch('/display/'+tik);
     if(response.status === 200){
         const data = await response.json();
-        let c = ['close', 'SMA', 'EMA'];
+
         for (let i = 0; i < 3; i++) {
-            updateChart(c[i], data.date, data[c[i]]);
+            updateChart(names[i], data.date, data[names[i]]);
+            Plotly.redraw(names[i]);
         }
-        chartDict['accuracy'].data.datasets[0].data = data.accuracy;
-        for (let i = 0; i < chartobjs.length; i++) {
-            chartobjs[i].update();
-        }
+
+        pieChart.data.datasets[0].data = data.accuracy;
+        pieChart.update();
         let table = document.querySelector('.query');
         let mtable = `
             <tr>
@@ -128,6 +124,8 @@ async function updateDisplay(){
         table.innerHTML = mtable;
     }
 }
+
+updateDisplay();
 
 function allUpdate(){
     timeCount();
