@@ -7,6 +7,7 @@ from History import TradeHistory
 import time
 import traceback, sys
 from threading import Thread
+import datetime as DT
 
 
 class Trade:
@@ -118,7 +119,7 @@ class Trade:
         self.get_model()
         last = self.data[self.keep_columns].values[-1]
         prediction = self.classifier.predict([last])[0]
-        self.table.set_close_prediction(close=last[0], prediction=prediction)
+        self.table.set_close_prediction(close=last[0], prediction=prediction, datetime=self.data.index[-1])
         return prediction
 
 
@@ -126,13 +127,23 @@ class Table:
     def __init__(self):
         self.last_close = None
         self.last_prediction = None
+        self.predicted_date = None
         self.right = 0
+        self.wrong = 0
         self.max_length = 100
         self.predictions = pd.DataFrame(None, columns=['Datetime', 'Actual', 'Predicted'])
 
-    def set_close_prediction(self, close, prediction):
+    def set_close_prediction(self, close, prediction, datetime):
         self.last_close = close
         self.last_prediction = round(prediction)
+        self.predicted_date = datetime + DT.timedelta(minutes=1)
+
+    def get_predictions(self):
+        # d = self.predictions.Datetime.values[-1] + DT.timedelta(minutes=1)
+        table = self.predictions.append(
+            {'Datetime': self.date_format(self.predicted_date), 'Actual': 'Pending', 'Predicted': self.last_prediction},
+            ignore_index=True)
+        return table.sort_index(ascending=False).to_dict('list')
 
     @staticmethod
     def date_format(datetime):
@@ -151,7 +162,10 @@ class Table:
         self.predictions = self.predictions.append(
             {'Datetime': self.date_format(datetime), 'Actual': actual, 'Predicted': self.last_prediction},
             ignore_index=True)
-        self.right += 1 if actual == self.last_prediction else self.right
+        if actual == self.last_prediction:
+            self.right += 1
+        else:
+            self.wrong += 1
         self.cap_length()
 
     def cap_length(self):
@@ -160,7 +174,7 @@ class Table:
 
     def score(self):
         if len(self.predictions) > 0:
-            return round((self.right/len(self.predictions))*100, 2)
+            return round((self.right/(self.right+self.wrong))*100, 2)
         else:
             return 0
 
@@ -181,13 +195,14 @@ class Manager:
         t1.start()
 
     def get_display_data(self, length=15):
-        display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None}
+        display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None,
+                   'model': self.trade.accuracy}
         data = self.trade.data
         display['close'] = list(data.Close.values)[-length:]
         display['SMA'] = list(data.SMA.values)[-length:]
         display['EMA'] = list(data.EMA.values)[-length:]
         display['date'] = [str(i) for i in data.index[-length:]]
-        display['table'] = self.trade.table.predictions.sort_index(ascending=False).to_dict('list')
+        display['table'] = self.trade.table.get_predictions()
         score = self.trade.table.score()
         display['accuracy'] = [score, 100-score]
 
