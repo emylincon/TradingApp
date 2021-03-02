@@ -1,6 +1,43 @@
 
 let pie = document.getElementById('Pie').getContext('2d');
+let pie1 = document.getElementById('Pie1').getContext('2d');
 let pieChart = new Chart(pie, {
+            type: 'doughnut',
+            data: {
+            datasets: [{
+                data: [90, 10],
+                backgroundColor: [
+                    'rgba(0, 255, 0, 0.8)',
+                    'rgba(255, 0, 0, 0.8)',
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)',
+                ],
+            }],
+
+            // These labels appear in the legend and in the tooltips when hovering different arcs
+            labels: [
+                'Accuracy',
+                'Loss',
+            ]
+        },
+            options: {
+                legend: {
+                    display: false,
+
+                 },
+                title: {
+                    fontSize: 20,
+                    text: "Prediction Accuracy",
+                    display: true,
+                    fontStyle: 'bold',
+                    fontColor: 'black'
+                },
+            }
+        });
+
+let pieChart1 = new Chart(pie1, {
             type: 'doughnut',
             data: {
             datasets: [{
@@ -103,7 +140,9 @@ async function updateDisplay(){
         }
 
         pieChart.data.datasets[0].data = data.accuracy;
+        pieChart1.data.datasets[0].data = data.model;
         pieChart.update();
+        pieChart1.update();
         let table = document.querySelector('.query');
         let mtable = `
             <tr>
