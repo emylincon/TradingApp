@@ -98,10 +98,10 @@ class Trade:
             self.classifier = DecisionTreeClassifier().fit(X_train, Y_train)
 
             # Check how well the model did on the training data set
-            self.accuracy['train'] = self.classifier.score(X_train, Y_train)
+            self.accuracy['train'] = self.classifier.score(X_train, Y_train)*100
 
             # Check how well the model did on the testing data set
-            self.accuracy['test'] = self.classifier.score(X_test, Y_test)
+            self.accuracy['test'] = self.classifier.score(X_test, Y_test)*100
         else:
             # Create and train the decision tree classifier model
             tree = DecisionTreeClassifier().fit(X_train, Y_train)
@@ -196,7 +196,7 @@ class Manager:
 
     def get_display_data(self, length=15):
         display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None,
-                   'model': self.trade.accuracy}
+                   'model': [self.trade.accuracy['test'], 100-self.trade.accuracy['test']]}
         data = self.trade.data
         display['close'] = list(data.Close.values)[-length:]
         display['SMA'] = list(data.SMA.values)[-length:]
