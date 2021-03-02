@@ -62,6 +62,7 @@ html, body{
 
 #diff-table{
     flex:1;
+
 }
 
 .timer{
@@ -82,8 +83,9 @@ h2{
     justify-content: center;
 }
 
-.query{
+.myTable{
     overflow: auto;
+    height: 85%;
 }
 
 .charts{
@@ -91,10 +93,12 @@ h2{
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 10px;
+    height: 60%;
 }
 
 .chart{
-    max-height: 380px;
+    max-height: 335px;
+    background-color: #e9e7e7;
 }
 
 .border{
@@ -107,6 +111,21 @@ h2{
     justify-content: center;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.boxer{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
+
+.box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 50%;
 }
 
 table.query{
