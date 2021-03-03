@@ -107,12 +107,12 @@ class Trade:
             tree = DecisionTreeClassifier().fit(X_train, Y_train)
 
             # Check how well the model did on the training data set
-            train = tree.score(X_train, Y_train)
+            train = tree.score(X_train, Y_train)*100
 
             # Check how well the model did on the testing data set
-            test = tree.score(X_test, Y_test)
-
+            test = tree.score(X_test, Y_test)*100
             if test > self.accuracy['test']:
+                print('changed')
                 self.classifier, self.accuracy['train'], self.accuracy['test'] = tree, train, test
 
     def predict(self):
@@ -191,7 +191,7 @@ class Manager:
         self.run()
 
     def run(self):
-        t1 = Thread(target=self.start)
+        t1 = Thread(target=self.start, daemon=True)
         t1.start()
 
     def get_display_data(self, length=15):
