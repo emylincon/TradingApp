@@ -13,7 +13,7 @@ class Stock:
         self.run()
 
     def run(self):
-        t1 = Thread(target=self.update_data)
+        t1 = Thread(target=self.update_data, daemon=True)
         t1.start()
 
     def get_data(self):
