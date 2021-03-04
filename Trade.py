@@ -194,6 +194,7 @@ class Manager:
     def __init__(self, name):
         self.name = name
         self.trade = Trade(name=name)
+        self.runner = True
         self.run()
 
     def run(self):
@@ -214,8 +215,11 @@ class Manager:
 
         return display
 
+    def stop(self):
+        self.runner = False
+
     def start(self):
-        while True:
+        while self.runner:
             try:
                 self.trade.predict()
             except:

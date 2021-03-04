@@ -6,7 +6,14 @@ class TestApp(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        print('starting')
         cls.tester = app.test_client(cls)
+
+    @classmethod
+    def tearDownClass(cls):
+        print('stopping')
+        manager = record.get('EUR/USD')
+        manager.stop()
 
     def test_index(self):
         response = self.tester.get('/')
