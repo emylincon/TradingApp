@@ -8,6 +8,7 @@ import time
 import traceback, sys
 from threading import Thread
 import datetime as DT
+from mockweb import Stock
 
 
 class Trade:
@@ -90,6 +91,11 @@ class Trade:
 
     def get_model(self):
         X, Y = self.data_preparation()
+        if (len(X)) == 0:
+            print('*'*100)
+            print('data is mocked')
+            print('*' * 100)
+            X, Y = Stock().data_preparation()
         # Split the data again but this time into 80% training and 20% testing data sets
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
