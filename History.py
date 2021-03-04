@@ -120,7 +120,7 @@ class TradingSignal:
         self.high = 85
         self.low = 25
 
-    def get_data(self, length='4hr'):
+    def get_data(self, length='1hr'):
         return self.stock.get_data(length=length, increment='1m')
 
     def money_flow(self):
@@ -192,7 +192,7 @@ class TradingSignal:
             return 'wait', result
 
     def plot(self):
-        plt.figure(figsize=(12.2, 4.5))
+        # plt.figure(figsize=(12.2, 4.5))
         buy, sell, new_df = self.get_signal()
         print(len(buy), len(sell), len(new_df))
         new_df.index = pd.to_datetime(new_df.index.astype(str).str.slice(0, 19), format='%Y-%m-%d %H:%M:%S')
@@ -217,7 +217,7 @@ class TradingSignal:
         # plt.show()
 
         # EURUSD=X
-t_name = 'EUR/USD'
+# t_name = 'EUR/USD'
 # da = TradeHistory('EUR/USD')
 # df = da.get_data(length='4hr', increment='1m')
 # df.to_csv('test.csv')
@@ -227,10 +227,13 @@ t_name = 'EUR/USD'
 
 #print(PredictFlow('EUR/USD').predict_next())
 
-ts = TradingSignal(t_name)
-print(ts.determine_signal())
-#
-while True:
-    drawnow(ts.plot)
-    time.sleep(2)
+# ts = TradingSignal(t_name)
+# print(ts.determine_signal())
+# #
+# while True:
+#     drawnow(ts.plot)
+#     time.sleep(2)
 # ts.plot()
+
+
+# check new trading signal https://www.youtube.com/watch?v=gEIw2iUlFYc&ab_channel=ComputerScience
