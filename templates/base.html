@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon" />
+    <link href='https://fonts.googleapis.com/icon?family=Material+Icons' rel="stylesheet">
+    <script src='https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js'></script>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>TradePy</title>
+</head>
+<body>
+    <div class="top-div">
+        <div class="title one-edge-shadow"><a style="text-decoration:none; color: white;" href="{{ url_for('home') }}">TradePy</a></div>
+        <div class="about ">Trading Application</div>
+    </div>
+    <div class="main">
+        {% block content %}{% endblock %}
+
+    </div>
+    <div id="footer">
+        <div class="inner-footer">
+            <img src="{{ url_for('static', filename='footer-img.jpeg') }}" id="face"/>
+            <br>
+            Designed by Emeka Ugwuanyi
+            <p>
+                <a href="https://github.com/emylincon"><i class="fa fa-github"></i></a>
+                    &nbsp;
+            <a href="https://www.linkedin.com/in/emeka-ugwuanyi-259089121/"><i class="fa fa-linkedin"></i></a>
+            </p>
+        </div>
+
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
