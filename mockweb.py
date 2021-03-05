@@ -94,7 +94,7 @@ class Stock:
         X = my_data[self.keep_columns].values[:-1]
         Y = my_data['Target'].values[:-1]
 
-        return X, Y
+        return X, Y, my_data
 
 
 # stock = Stock()
