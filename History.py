@@ -19,7 +19,7 @@ class TradeHistory:
 
     def get_ticker_symbol(self):
         payload = {'name': self.name, 'kind': 'match'}
-        r = requests.get(self.ticker_api+'ticker', params=payload)
+        r = requests.get(self.ticker_api + 'ticker', params=payload)
         return json.loads(r.content)[0]['Ticker']
 
     def get_data(self, length='30m', increment='1m'):
@@ -60,6 +60,7 @@ class PredictFlow:
     it predicts if the stock would go up or down
     returns down, up or stable as results
     """
+
     def __init__(self, name):
         self.name = name
         self.model = None
@@ -112,6 +113,7 @@ class TradingSignal:
     # money flow index of 90 and 10 are used as thresholds
     # this program determines when to buy or sell
     """
+
     def __init__(self, name):
         self.name = name
         self.stock = TradeHistory(name=self.name)
@@ -209,7 +211,7 @@ class TradingSignal:
 
         plt.scatter(my_buy.index, my_buy.buy, color='green', label='Buy Signal', marker='^', alpha=1)
         plt.scatter(my_sell.index, my_sell.buy, color='red', label='Sell Signal', marker='v', alpha=1)
-        #plt.scatter(new_df.index, sell, color='red', label='Sell Signal', marker='v', alpha=1)
+        # plt.scatter(new_df.index, sell, color='red', label='Sell Signal', marker='v', alpha=1)
         plt.title(f'{self.name} Close Price')
         plt.xlabel('Date')
         plt.ylabel('Close Price')
@@ -225,7 +227,7 @@ class TradingSignal:
 # print(da.real_time_obj().read())
 # print(da.real_time_dict())
 
-#print(PredictFlow('EUR/USD').predict_next())
+# print(PredictFlow('EUR/USD').predict_next())
 
 # ts = TradingSignal(t_name)
 # print(ts.determine_signal())

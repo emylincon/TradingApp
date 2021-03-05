@@ -7,7 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 import time
-
+import requests
+import json
 
 driver = webdriver.Chrome("chromeDriver/chromedriver.exe", options=webdriver.ChromeOptions())
 
@@ -63,8 +64,10 @@ class Market:
             num = (i / 2) + 1
             try:
                 markets[names[i].get_text()] = {'sell': rates[i].get_text(), 'buy': rates[i + 1].get_text(),
-                                                'sell path': driver.find_element_by_xpath(xpath=self.path_format(kind='sell', no=num)),
-                                                'buy path': driver.find_element_by_xpath(xpath=self.path_format(kind='buy', no=num))}
+                                                'sell path': driver.find_element_by_xpath(
+                                                    xpath=self.path_format(kind='sell', no=num)),
+                                                'buy path': driver.find_element_by_xpath(
+                                                    xpath=self.path_format(kind='buy', no=num))}
             except IndexError:
                 break
         return markets
@@ -76,22 +79,24 @@ class Market:
 
     def place_trade(self, kind, name):
         # kind = sell, buy | name = EUR/USD,  EUR/GBP, GBP/AUD...
-        stake_path = '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[2]/div[2]/input'
-        stop_loss_path = '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[1]/label/span[1]'
-        take_profit_path = '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[2]/label/span[1]'
-        place_order_path = '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[4]/button'
-        stop_loss_input_path = {'pips': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[2]/label/span[1]',
-                                'GBP': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[3]/label/span[1]',
-                                '%': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[4]/label/span[1]',
-                                'rate': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[1]/label/span[1]',
-                                'input': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[2]/div/input'}
+        stake_path = f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[2]/div[2]/input'
+        stop_loss_path = f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[1]/label/span[1]'
+        take_profit_path = f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[2]/label/span[1]'
+        place_order_path = f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[4]/button'
+        stop_loss_input_path = {
+            'pips': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[2]/label/span[1]',
+            'GBP': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[3]/label/span[1]',
+            '%': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[4]/label/span[1]',
+            'rate': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[1]/div[1]/label/span[1]',
+            'input': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[1]/div/div[2]/div/input'}
 
-        take_profit_input_path = {'input': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[2]/div/input',
-                                  'pips': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[2]/div/input',
-                                  'GBP': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[1]/div[3]/label/span[1]',
-                                  '%': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[1]/div[4]/label/span[1]',
-                                  'rate': '//*[@id="trade-create-EUR/USD-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[1]/div[4]/label/span[1]'}
-        confirm_order = '//*[@id="trade-create-EUR/USD-152"]/div/div/div/div[1]'
+        take_profit_input_path = {
+            'input': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[2]/div/input',
+            'pips': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[2]/div/input',
+            'GBP': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[1]/div[3]/label/span[1]',
+            '%': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[1]/div[4]/label/span[1]',
+            'rate': f'//*[@id="trade-create-{name}-152"]/div/form/div[2]/div[3]/div/div[2]/div/div[1]/div[4]/label/span[1]'}
+        confirm_order = f'//*[@id="trade-create-{name}-152"]/div/div/div/div[1]'
 
         self.stocks[name][f'{kind} path'].click()
         time.sleep(1)
@@ -120,14 +125,38 @@ class Market:
         driver.find_element_by_xpath(xpath=back_to_trade).click()
 
 
-class TradeHistory:
-    def __init__(self):
+class Stock:
+    def __init__(self, name):
+        self.ticker_api = 'https://trade-ticker.herokuapp.com/'
+        self.name = name
+        self.ticker = self.get_ticker_symbol()
+        self.status = None  # None, buy or sell
+        self.placed_price = None
+        self.stop_price = None
+
+    def get_ticker_symbol(self):
+        payload = {'name': self.name, 'kind': 'match'}
+        r = requests.get(self.ticker_api + 'ticker', params=payload)
+        return json.loads(r.content)[0]['Ticker']
+
+    def current_price(self):
+        return 0
+
+    def buy_cap(self):
         pass
 
+    def manage_price(self):
+        while True:
+            pass
 
-Login().login()
-myTrade = Market()
-time.sleep(1)
-myTrade.place_trade(kind='sell', name='EUR/USD')
-time.sleep(10)
-myTrade.close_all_positions()
+
+class PlacedTrades:
+    def __init__(self):
+        self.open = []
+
+# Login().login()
+# myTrade = Market()
+# time.sleep(1)
+# myTrade.place_trade(kind='sell', name='EUR/USD')
+# time.sleep(10)
+# myTrade.close_all_positions()
