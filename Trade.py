@@ -118,7 +118,6 @@ class Trade:
             # Check how well the model did on the testing data set
             test = tree.score(X_test, Y_test)*100
             if test > self.accuracy['test']:
-                print('changed')
                 self.classifier, self.accuracy['train'], self.accuracy['test'] = tree, train, test
 
     def predict(self):
