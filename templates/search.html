@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="BigBox">
+       <div class="innerBox">
+            <form id="form" method="POST" action='/search' enctype='multipart/form-data'>
+                <input type="text" name="search" placeholder="Search ticker...">
+                <select name="kind">
+                    <option>Name</option>
+                    <option>Ticker</option>
+                </select>
+                <input type="submit" value="search">
+            </form>
+        </div>
+        {% if results %}
+        <br>
+        <hr>
+            <div class="searchResults">
+
+                <table class='query'>
+                    <tr>
+                          <th>Category Name</th>
+                          <th>Country</th>
+                          <th>Exchange</th>
+                            <th>Name</th>
+                            <th>Ticker</th>
+                        </tr>
+                    {% for row in results %}
+                        <tr onclick="form_click('{{ row.Name }}')">
+                          <td >{{ row['Category Name'] }}</td>
+                          <td >{{ row['Country'] }}</td>
+                          <td >{{ row['Exchange'] }}</td>
+                            <td >{{ row['Name'] }}</td>
+                            <td >{{ row['Ticker'] }}</td>
+                        </tr>
+                    {% endfor %}
+
+                  </table>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        function form_click(ticker){
+            window.location.replace('/'+ticker);
+        }
+
+    </script>
+
+{% endblock content %}
