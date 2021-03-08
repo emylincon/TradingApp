@@ -44,6 +44,7 @@ record_manager = ManageRecord()
 def dashboard(ticker):
     return render_template('index.html', ticker=ticker)
 
+
 @app.route('/')
 @app.route('/search', methods=['POST', 'GET'])
 def search():
