@@ -203,6 +203,7 @@ class Manager:
     def get_display_data(self, length=15):
         display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None,
                    'model': [self.trade.accuracy['test'], 100-self.trade.accuracy['test']]}
+
         data = self.trade.data
         display['close'] = list(data.Close.values)[-length:]
         display['SMA'] = list(data.SMA.values)[-length:]
