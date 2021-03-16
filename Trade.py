@@ -92,7 +92,7 @@ class Trade:
     def get_model(self):
         X, Y = self.data_preparation()
         if (len(X)) == 0:
-            print('*'*100)
+            print('*' * 100)
             print('data is mocked')
             print('*' * 100)
             X, Y, self.data = Stock().data_preparation()
@@ -104,19 +104,19 @@ class Trade:
             self.classifier = DecisionTreeClassifier().fit(X_train, Y_train)
 
             # Check how well the model did on the training data set
-            self.accuracy['train'] = self.classifier.score(X_train, Y_train)*100
+            self.accuracy['train'] = self.classifier.score(X_train, Y_train) * 100
 
             # Check how well the model did on the testing data set
-            self.accuracy['test'] = self.classifier.score(X_test, Y_test)*100
+            self.accuracy['test'] = self.classifier.score(X_test, Y_test) * 100
         else:
             # Create and train the decision tree classifier model
             tree = DecisionTreeClassifier().fit(X_train, Y_train)
 
             # Check how well the model did on the training data set
-            train = tree.score(X_train, Y_train)*100
+            train = tree.score(X_train, Y_train) * 100
 
             # Check how well the model did on the testing data set
-            test = tree.score(X_test, Y_test)*100
+            test = tree.score(X_test, Y_test) * 100
             if test > self.accuracy['test']:
                 self.classifier, self.accuracy['train'], self.accuracy['test'] = tree, train, test
 
@@ -179,7 +179,7 @@ class Table:
 
     def score(self):
         if len(self.predictions) > 0:
-            return round((self.right/(self.right+self.wrong))*100, 2)
+            return round((self.right / (self.right + self.wrong)) * 100, 2)
         else:
             return 0
 
@@ -202,7 +202,7 @@ class Manager:
 
     def get_display_data(self, length=15):
         display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None,
-                   'model': [self.trade.accuracy['test'], 100-self.trade.accuracy['test']]}
+                   'model': [self.trade.accuracy['test'], 100 - self.trade.accuracy['test']]}
 
         data = self.trade.data
         display['close'] = list(data.Close.values)[-length:]
@@ -211,7 +211,7 @@ class Manager:
         display['date'] = [str(i) for i in data.index[-length:]]
         display['table'] = self.trade.table.get_predictions()
         score = self.trade.table.score()
-        display['accuracy'] = [score, 100-score]
+        display['accuracy'] = [score, 100 - score]
 
         return display
 
@@ -227,9 +227,3 @@ class Manager:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 print(f'Error: {exc_value}')
             time.sleep(60)
-
-
-
-
-
-
