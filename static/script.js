@@ -32,7 +32,7 @@ let pieChart = new Chart(pie, {
                     text: "Prediction Accuracy",
                     display: true,
                     fontStyle: 'bold',
-                    fontColor: 'black'
+                    fontColor: 'white'
                 },
             }
         });
@@ -68,7 +68,7 @@ let pieChart1 = new Chart(pie1, {
                     text: "Model Accuracy",
                     display: true,
                     fontStyle: 'bold',
-                    fontColor: 'black'
+                    fontColor: 'white'
                 },
             }
         });
@@ -76,13 +76,17 @@ let pieChart1 = new Chart(pie1, {
 
 let colors = ['225,104,104', '0,128,0', '142, 124, 195']
 let names = ['close', 'SMA', 'EMA'];
+const capitalize = (s) => {
+    if (typeof s !== 'string') return ''
+    return s.charAt(0).toUpperCase() + s.slice(1)
+};
 
 let chartInfo = {};
 for (let i = 0; i < 3; i++) {
     chartInfo[names[i]] = {
-        'data': [{
                   x: ["2021-02-26 21:59:00+00:00", "2021-02-26 22:00:00+00:00", "2021-02-26 22:01:00+00:00", "2021-02-26 22:02:00+00:00"],
                   y: [16, 5, 11, 9],
+                  name: capitalize(names[i]),
                   type: 'scatter',
                     line: {shape: 'spline',
                         dash: 'dashdot',
@@ -93,24 +97,31 @@ for (let i = 0; i < 3; i++) {
                     color: 'rgba('+colors[i]+',0.7)',
                     size: 8
                   },
-                }],
-        'layout': {
-                  title:`${names[i]} ${document.querySelector('#tik').innerHTML}`,
-                  xaxis: {
-                    title: 'DateTime',
-                  },
-                  yaxis: {
-                    // title: 'Close'
-                  },
-                    plot_bgcolor:"rgba(233, 231, 231, 0.3)",
-                    paper_bgcolor:"rgb(233, 231, 231)"
                 }
-    }
 }
 
-for (let i = 0; i < 3; i++) {
-    Plotly.newPlot(names[i], chartInfo[names[i]]['data'], chartInfo[names[i]]['layout']);
-}
+
+//********* start Line plot build ************************
+const mybox = document.querySelector('#line');
+
+
+var layout = {
+    title: "LIVE STOCK CHART " + document.querySelector('#tik').innerHTML,
+    autosize: false,
+    width: mybox.clientWidth,
+    height: mybox.clientHeight-10,
+    xaxis: {
+        title: 'DateTime',
+      }
+};
+
+var config = {responsive: true};
+
+var chart_data = [chartInfo.close, chartInfo.SMA, chartInfo.EMA];
+
+Plotly.newPlot('line', chart_data, layout, config);
+//********* finish Line plot build ************************
+
 const no = 59;
 let count = 59;
 const countDiv = document.querySelector(".timer");
@@ -123,9 +134,8 @@ function timeCount(){
 }
 // display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None}
 function updateChart(chart, labels, data){
-    chartInfo[chart].data[0].x = labels;
-    chartInfo[chart].data[0].y = data;
-
+    chartInfo[chart].x = labels;
+    chartInfo[chart].y = data;
 }
 
 async function updateDisplay(){
@@ -136,9 +146,8 @@ async function updateDisplay(){
 
         for (let i = 0; i < 3; i++) {
             updateChart(names[i], data.date, data[names[i]]);
-            Plotly.redraw(names[i]);
         }
-
+        Plotly.redraw('line');
         pieChart.data.datasets[0].data = data.accuracy;
         pieChart1.data.datasets[0].data = data.model;
         pieChart.update();
@@ -162,6 +171,39 @@ async function updateDisplay(){
         }
         table.innerHTML = mtable;
     }
+}
+
+const mySwitcher = {'close': 0, 'SMA': 0, 'EMA': 0};
+let n_index = {'close': 0, 'SMA': 1, 'EMA': 2};
+
+function update_index(kind, name){
+    if(kind==='push'){
+        n_index[name] = chart_data.length - 1;
+    }
+    else if (kind === 'pop'){
+        let n = n_index[name];
+        n_index[name] = -1;
+        for (let key in n_index){
+            if (n_index[key] > n){
+                n_index[key] -= 1;
+            }
+        }
+    }
+}
+
+function change_chart(name){
+    // chart_data
+    console.log(name);
+    mySwitcher[name] = mySwitcher[name]^1;
+        if(mySwitcher[name] === 1){
+            chart_data.splice(n_index[name], 1);
+            update_index(kind='pop', name=name)
+            Plotly.redraw('line');
+        }else{
+            chart_data.push(chartInfo[name]);
+            update_index(kind='push', name=name)
+            Plotly.redraw('line');
+        }
 }
 
 updateDisplay();

@@ -1,63 +1,93 @@
 {% extends "base.html" %}
+<style>
+    .main{
+        align-items: stretch;
+    }
+
+</style>
 {% block content %}
     <div id="diff-table" class="border">
 
-         <h2>Update Table &nbsp;</h2>
-        <h3><span id="tik">{{ ticker }}</span></h3>
-            <div class="timer">
-                59s
+            <h2>Prediction Table &nbsp;</h2>
+           <h3><span id="tik">{{ ticker }}</span>&nbsp;</h3>
+               <div class="timer">
+                   59s
+               </div>
+               <br>
+               <div class="myTable">
+                   <table class='query'>
+                   <tr>
+                         <th>DateTime</th>
+                         <th>Actual</th>
+                         <th>Predicted</th>
+                   </tr>
+
+                   <tr>
+                       <td >12 Jan 2021 19:00</td>
+                       <td >Up</td>
+                       <td >Down</td>
+                   </tr>
+
+                   <tr>
+                       <td >12 Jan 2021 19:01</td>
+                       <td >Up</td>
+                       <td >Up</td>
+                   </tr>
+
+                   <tr>
+                       <td >12 Jan 2021 19:02</td>
+                       <td >Down</td>
+                       <td >Down</td>
+                   </tr>
+                 </table>
+               </div>
+
+       </div>
+       <div class="line-charts">
+        <div id="line" class="chart"></div>
+           <div class="chartbar">
+                <div class="chartButtons">
+                    <div class="switcher">
+                        <div class="toggle">
+                            <input onclick="change_chart('close')" type="checkbox">
+                            <label for="" class="onbtn">Off</label>
+                            <label for="" class="ofbtn">On</label>
+                        </div>
+                    </div>
+                    <div class="switcher">
+                        <div class="toggle">
+                            <input onclick="change_chart('SMA')" type="checkbox">
+                            <label for="" class="onbtn">Off</label>
+                            <label for="" class="ofbtn">On</label>
+                        </div>
+                    </div>
+                    <div class="switcher">
+                        <div class="toggle">
+                            <input onclick="change_chart('EMA')" type="checkbox">
+                            <label for="" class="onbtn">Off</label>
+                            <label for="" class="ofbtn">On</label>
+                        </div>
+                    </div>
+                </div>
+               <div class="update">
+                   Update Chart Display
+                   <span class="material-icons">
+                    cached
+                    </span>
+               </div>
+           </div>
+
+
+       </div>
+       <div class="pie-charts">
+            <div class="box">
+                <canvas id="Pie" height="230"></canvas>
             </div>
-            <br>
-            <div class="myTable">
-                <table class='query'>
-                <tr>
-                      <th>DateTime</th>
-                      <th>Actual</th>
-                      <th>Predicted</th>
-                </tr>
-
-                <tr>
-                    <td >12 Jan 2021 19:00</td>
-                    <td >Up</td>
-                    <td >Down</td>
-                </tr>
-
-                <tr>
-                    <td >12 Jan 2021 19:01</td>
-                    <td >Up</td>
-                    <td >Up</td>
-                </tr>
-
-                <tr>
-                    <td >12 Jan 2021 19:02</td>
-                    <td >Down</td>
-                    <td >Down</td>
-                </tr>
-              </table>
+            <div class="box">
+                <canvas id="Pie1" height="230"></canvas>
             </div>
+       </div>
 
-    </div>
-    <div class="charts">
-        <div class="item border">
-            <div id="close" class="chart"></div>
-        </div>
-        <div class="item border">
-            <div id="EMA" class="chart" ></div>
-        </div>
-        <div class="item border">
-            <div id="SMA" class="chart"></div>
-        </div>
-        <div class="item border boxer">
-            <div class="box border">
-                <canvas id="Pie" height="200"></canvas>
-            </div>
-            <div class="box border">
-                <canvas id="Pie1" height="200"></canvas>
-            </div>
-
-        </div>
-
-    </div>
 
 
 
