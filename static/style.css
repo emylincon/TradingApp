@@ -35,6 +35,7 @@ html, body{
 :root {
     --switch_len: 40px;
     --search_radius: 15px;
+    --table_height: calc( 87vh - 40px );
 
 }
 
@@ -112,6 +113,7 @@ label {
 }
 .chartbar{
     display: flex;
+    margin-top: 40px;
 
 }
 .update{
@@ -269,6 +271,7 @@ label {
     color: rgb(46, 45, 45);
     background: white;
     min-height: 300px;
+    max-height: var(--table_height);
     padding: 5px;
 
 }
@@ -291,6 +294,7 @@ label {
     border: 1px solid white;
     border-radius: 10px;
     min-height: 300px;
+    max-height: 600px;
     background: white;
     padding: 10px;
 
@@ -334,7 +338,7 @@ h3{
 
 .myTable{
     overflow: auto;
-    height: 85%;
+    height: 78%;
 }
 
 
@@ -382,13 +386,14 @@ table.query{
     width: 100%;
     margin: 0 auto;
     color: black;
+    font-size: 13px;
 }
 
 table.query td, th{
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-    font-size: 13px;
+
     }
 table.query tr:hover {
     background-color:#f5f5f5;
@@ -432,7 +437,7 @@ table.query tr:hover {
 
 @media screen and (max-width:800px){
     .line-charts{
-        width: 500px;
+        width: 600px;
     }
 }
 
@@ -443,8 +448,65 @@ table.query tr:hover {
     }
 }
 
-@media screen and (max-width:800px){
-    .line-charts{
-        width: 600px;
+@media screen and (max-width:660px){
+    .searchResults{
+        min-width: 300px;
+    }
+    .inner-footer{
+        font-size: 10px;
+    }
+
+    .about{
+        font-size: 15px;
+    }
+    .innerBox input[type="submit"]{
+        width: 60px;
+        font-size:12px;
+        height: 40px;
+    }
+    .innerBox select{
+        font-size: 15px;
+        font-size:12px;
+        height: 40px;
+        top:0px;
+    }
+    .innerBox input[type="text"]{
+        width: 150px;
+        font-size:12px;
+        height: 40px;
+    }
+    .innerBox{
+        width: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .innerBox input{
+        font-size: 15px;
+    }
+    .BigBox{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .searchResults{
+        max-width: 350px;
+    }
+    table.query{
+        font-size: 10px;
+    }
+    .update{
+        font-size: 10px;
+    }
+
+}
+
+@media screen and (max-width:372px){
+    body{
+        width: 372px;
+        overflow: auto;
+    }
+    input[type="checkbox"] {
+        width: 80px;
     }
 }
