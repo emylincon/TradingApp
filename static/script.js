@@ -100,6 +100,9 @@ for (let i = 0; i < 3; i++) {
                 }
 }
 
+function trim(s){
+  return ( s || '' ).replace( /^\s+|\s+$/g, '' );
+}
 
 //********* start Line plot build ************************
 const mybox = document.querySelector('#line');
@@ -139,10 +142,17 @@ function updateChart(chart, labels, data){
 }
 
 async function updateDisplay(){
-    let tik = document.querySelector('#tik').innerHTML;
-    const response = await fetch('/display/'+tik);
+    let tik = trim(document.querySelector('#tik').innerText);
+    const the_ticker = trim(document.querySelector('#the_ticker').innerText);
+    console.log(`name: ${tik} \n ticker ${the_ticker}`);
+    let obj = {'name': tik, 'ticker': the_ticker};
+     let response = await fetch('/display', {method: 'POST', headers: {'Content-Type': 'application/json'},
+                                                    body: JSON.stringify(obj)});
+//    const response = await fetch('/display/'+tik);
+    console.log(response.status)
     if(response.status === 200){
-        const data = await response.json();
+        try{
+            const data = await response.json();
 
         for (let i = 0; i < 3; i++) {
             updateChart(names[i], data.date, data[names[i]]);
@@ -170,6 +180,15 @@ async function updateDisplay(){
             `
         }
         table.innerHTML = mtable;
+
+        }catch (err){
+            console.log('error occurred')
+            console.log(err)
+        }
+
+    }
+    else if (response.status === 404){
+        document.body.innerHTML = await response.text();
     }
 }
 

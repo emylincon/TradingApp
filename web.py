@@ -25,8 +25,8 @@ class ManageRecord:
         else:
             return self.search_ticker(data=data, kind=kind)
 
-    def add_stock(self, name):
-        self.record[name.upper()] = Manager(name=name)
+    def add_stock(self, name, ticker=None):
+        self.record[name.upper()] = Manager(name=name, ticker=ticker)
         self.record[name.upper()].trade.predict()
 
     def get_display(self, name):
@@ -45,6 +45,14 @@ def dashboard(ticker):
     return render_template('index.html', ticker=ticker)
 
 
+@app.route('/dashboard', methods=['POST', 'GET'])
+def my_dashboard():
+    if request.method == 'POST':
+        data = dict(request.form)  # {'myname': 'hey', 'myticker': 'hi'}
+        return render_template('index.html', ticker=data['myname'], myticker=data['myticker'])
+    return render_template('search.html', results=None)
+
+
 @app.route('/')
 @app.route('/search', methods=['POST', 'GET'])
 def search():
@@ -56,14 +64,21 @@ def search():
         return render_template('search.html', results=None)
 
 
-@app.route('/display/<path:tik>')
-def get_display(tik):
+@app.route('/display', methods=['POST', 'GET'])
+def get_display():
+    data = request.json
+    tik, ticker = data['name'], data['ticker']
     trade_obj = record.get(tik.upper().strip())
     if trade_obj:
-        return jsonify(trade_obj.get_display_data()),200
+        result = trade_obj.get_display_data()
     else:
-        record_manager.add_stock(name=tik)
-        return jsonify(record_manager.get_display(name=tik)),200
+        record_manager.add_stock(name=tik, ticker=ticker)
+        result = record_manager.get_display(name=tik)
+
+    if result:
+        return jsonify(result), 200
+    else:
+        return render_template('error.html', name=tik), 404
 
 
 if __name__ == '__main__':

@@ -12,9 +12,9 @@ from mockweb import Stock
 
 
 class Trade:
-    def __init__(self, name):
+    def __init__(self, name, ticker=None):
         self.name = name
-        self.stock = TradeHistory(name=self.name)
+        self.stock = TradeHistory(name=self.name, ticker=ticker)
         self.data = None
         self.classifier = None
         self.table = Table()
@@ -68,8 +68,6 @@ class Trade:
         return data
 
     def data_preparation(self):
-        # fetch data
-        self.set_data()
         # add table data
         self.table.add_row(datetime=self.data.index[-1], close=self.data.Close.values[-1])
         # Add the indicators to the data set
@@ -121,11 +119,16 @@ class Trade:
                 self.classifier, self.accuracy['train'], self.accuracy['test'] = tree, train, test
 
     def predict(self):
-        self.get_model()
-        last = self.data[self.keep_columns].values[-1]
-        prediction = self.classifier.predict([last])[0]
-        self.table.set_close_prediction(close=last[0], prediction=prediction, datetime=self.data.index[-1])
-        return prediction
+        # fetch data
+        self.set_data()
+        if len(self.data) == 0:
+            return None
+        else:
+            self.get_model()
+            last = self.data[self.keep_columns].values[-1]
+            prediction = self.classifier.predict([last])[0]
+            self.table.set_close_prediction(close=last[0], prediction=prediction, datetime=self.data.index[-1])
+            return prediction
 
 
 class Table:
@@ -190,9 +193,9 @@ class Table:
 
 
 class Manager:
-    def __init__(self, name):
+    def __init__(self, name, ticker=None):
         self.name = name
-        self.trade = Trade(name=name)
+        self.trade = Trade(name=name, ticker=ticker)
         self.runner = True
         self.run()
 
@@ -201,19 +204,26 @@ class Manager:
         t1.start()
 
     def get_display_data(self, length=15):
-        display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None,
-                   'model': [self.trade.accuracy['test'], 100 - self.trade.accuracy['test']]}
+        if self.runner and (self.trade.data is not None) and (len(self.trade.data) > 0):
+            try:
+                display = {'table': None, 'close': None, 'SMA': None, 'EMA': None, 'accuracy': None, 'date': None,
+                           'model': [self.trade.accuracy['test'], 100 - self.trade.accuracy['test']]}
 
-        data = self.trade.data
-        display['close'] = list(data.Close.values)[-length:]
-        display['SMA'] = list(data.SMA.values)[-length:]
-        display['EMA'] = list(data.EMA.values)[-length:]
-        display['date'] = [str(i) for i in data.index[-length:]]
-        display['table'] = self.trade.table.get_predictions()
-        score = self.trade.table.score()
-        display['accuracy'] = [score, 100 - score]
+                data = self.trade.data
+                display['close'] = list(data.Close.values)[-length:]
+                display['SMA'] = list(data.SMA.values)[-length:]
+                display['EMA'] = list(data.EMA.values)[-length:]
+                display['date'] = [str(i) for i in data.index[-length:]]
+                display['table'] = self.trade.table.get_predictions()
+                score = self.trade.table.score()
+                display['accuracy'] = [score, 100 - score]
 
-        return display
+                return display
+            except Exception as e:
+                print('Error occurred', e)
+                return None
+        else:
+            return None
 
     def stop(self):
         self.runner = False
@@ -221,7 +231,11 @@ class Manager:
     def start(self):
         while self.runner:
             try:
-                self.trade.predict()
+                ans = self.trade.predict()
+                if ans is None:
+                    print(f'stopping: ans: {ans}')
+                    self.stop()
+                    break
             except:
                 traceback.print_exc()
                 exc_type, exc_value, exc_traceback = sys.exc_info()
