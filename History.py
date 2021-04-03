@@ -12,10 +12,13 @@ import time
 
 
 class TradeHistory:
-    def __init__(self, name):
+    def __init__(self, name, ticker=None):
         self.ticker_api = 'https://trade-ticker.herokuapp.com/'
-        self.name = name
-        self.ticker = self.get_ticker_symbol()
+        self.name = name.strip()
+        if ticker:
+            self.ticker = ticker
+        else:
+            self.ticker = self.get_ticker_symbol()
 
     def get_ticker_symbol(self):
         payload = {'name': self.name, 'kind': 'match'}
