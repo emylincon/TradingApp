@@ -24,12 +24,12 @@ class TestApp(unittest.TestCase):
         data = response.get_display_data()
         self.assertListEqual(list(data.keys()),['table','close','SMA','EMA', 'accuracy', 'date','model'])
 
-    def test_get_display(self):
-        obj = record.get('EUR/USD')
-        obj.trade.predict()
-        response = self.tester.get('/display/EUR/USD')
-        self.assertListEqual(sorted(list(response.json.keys())),
-                             sorted(['table','close','SMA','EMA', 'accuracy', 'date','model']))
+    # def test_get_display(self):
+    #     obj = record.get('EUR/USD')
+    #     obj.trade.predict()
+    #     response = self.tester.get('/display/EUR/USD')
+    #     self.assertListEqual(sorted(list(response.json.keys())),
+    #                          sorted(['table','close','SMA','EMA', 'accuracy', 'date','model']))
 
 
 if __name__ == '__main__':
