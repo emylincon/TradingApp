@@ -31,7 +31,7 @@
                             <th>Ticker</th>
                         </tr>
                     {% for row in results %}
-                        <tr onclick="form_click('{{ row.Name }}')">
+                        <tr onclick="myDisplay('{{ row.Name }}', '{{ row.Ticker }}')">
                           <td >{{ row['Category Name'] }}</td>
                           <td >{{ row['Country'] }}</td>
                           <td >{{ row['Exchange'] }}</td>
@@ -44,9 +44,37 @@
             </div>
         {% endif %}
     </div>
+
+    <div class="hideme">
+            <form id='hideform' action='/dashboard' method="POST" enctype='multipart/form-data'>
+                <input type='text' class="input" id='myname' name='myname' value='' required>
+                <input type='text' class="input" id='myticker' name='myticker' value='' required>
+                <input id="myrun" type='submit' value='RUN'>
+            </form>
+    </div>
     <script>
+        const name_obj = document.querySelector('#myname');
+        const ticker_obj = document.querySelector('#myticker');
+        const run_obj = document.querySelector('#myrun');
+
         function form_click(ticker){
             window.location.replace('/'+ticker);
+        }
+        async function fetchBoard(name, ticker) {
+          try {
+            var obj = { "name": name, "ticker": ticker };
+            let response = await fetch('/dashboard', {method: 'POST', headers: {'Content-Type': 'application/json'},
+                                                    body: JSON.stringify(obj)}); // Gets a promise
+            document.body.innerHTML = await response.text(); // Replaces body with response
+          } catch (err) {
+            console.log('Fetch error:' + err); // Error handling
+          }
+        }
+
+        function myDisplay(name, ticker){
+            name_obj.value = name;
+            ticker_obj.value = ticker;
+            run_obj.click();
         }
 
     </script>
