@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+<style>
+    .main{
+        align-items: stretch;
+    }
+
+</style>
+{% block content %}
+    <div class="error">
+            <h2>Data Not Found</h2>
+        <p>
+            Error the data for {{ name }} is not available. The stock may have been delisted.
+            Please search for other available tickers.
+        </p>
+    </div>
+{% endblock content %}
