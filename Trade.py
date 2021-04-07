@@ -102,19 +102,19 @@ class Trade:
             self.classifier = DecisionTreeClassifier().fit(X_train, Y_train)
 
             # Check how well the model did on the training data set
-            self.accuracy['train'] = self.classifier.score(X_train, Y_train) * 100
+            self.accuracy['train'] = round(self.classifier.score(X_train, Y_train) * 100, 4)
 
             # Check how well the model did on the testing data set
-            self.accuracy['test'] = self.classifier.score(X_test, Y_test) * 100
+            self.accuracy['test'] = round(self.classifier.score(X_test, Y_test) * 100, 4)
         else:
             # Create and train the decision tree classifier model
             tree = DecisionTreeClassifier().fit(X_train, Y_train)
 
             # Check how well the model did on the training data set
-            train = tree.score(X_train, Y_train) * 100
+            train = round(tree.score(X_train, Y_train) * 100, 4)
 
             # Check how well the model did on the testing data set
-            test = tree.score(X_test, Y_test) * 100
+            test = round(tree.score(X_test, Y_test) * 100, 4)
             if test > self.accuracy['test']:
                 self.classifier, self.accuracy['train'], self.accuracy['test'] = tree, train, test
 
