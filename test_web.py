@@ -37,8 +37,8 @@ class TestApp(unittest.TestCase):
                              sorted(['table','close','SMA','EMA', 'accuracy', 'date','model']))
 
     def test_post_dashboard(self):
-        f = {'myname': 'EUR/USD', 'myticker': 'EURUSD=X'}
-        response = self.tester.post('/dashboard', data=f)
+        payload = {'myname': 'EUR/USD', 'myticker': 'EURUSD=X'}
+        response = self.tester.post('/dashboard', data=payload)
         self.assertEqual(response.status_code, 200)
 
 
