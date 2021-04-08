@@ -1,6 +1,7 @@
 from flask import Flask, render_template, session, url_for, request, jsonify, Response
 from Trade import Manager
 import requests
+
 app = Flask(__name__)
 
 record = {'EUR/USD': Manager(name='EUR/USD')}
@@ -34,6 +35,8 @@ class ManageRecord:
 
 
 record_manager = ManageRecord()
+
+
 #
 # @app.route('/')
 # def home():
@@ -83,4 +86,3 @@ def get_display():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

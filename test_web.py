@@ -22,7 +22,7 @@ class TestApp(unittest.TestCase):
         response = record.get('EUR/USD')
         response.trade.predict()
         data = response.get_display_data()
-        self.assertListEqual(list(data.keys()),['table','close','SMA','EMA', 'accuracy', 'date','model'])
+        self.assertListEqual(list(data.keys()), ['table', 'close', 'SMA', 'EMA', 'accuracy', 'date', 'model'])
 
     def test_dashboard(self):
         response = self.tester.get('/dashboard')
@@ -34,7 +34,7 @@ class TestApp(unittest.TestCase):
         obj.trade.predict()
         response = self.tester.post('/display', json={'name': 'EUR/USD', 'ticker': 'EURUSD=X'})
         self.assertListEqual(sorted(list(response.json.keys())),
-                             sorted(['table','close','SMA','EMA', 'accuracy', 'date','model']))
+                             sorted(['table', 'close', 'SMA', 'EMA', 'accuracy', 'date', 'model']))
 
     def test_post_dashboard(self):
         payload = {'myname': 'EUR/USD', 'myticker': 'EURUSD=X'}
@@ -44,4 +44,3 @@ class TestApp(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
