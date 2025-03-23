@@ -28,7 +28,6 @@ scikit-learn
 scipy
 selenium
 six==1.15.0
-sklearn
 soupsieve==2.0.1
 threadpoolctl==2.1.0
 urllib3
